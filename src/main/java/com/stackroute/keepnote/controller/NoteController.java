@@ -5,6 +5,22 @@ package com.stackroute.keepnote.controller;
  * any POJO class as a controller so that Spring can recognize this class as a Controller
  */
 
+import com.stackroute.keepnote.dao.NoteDAO;
+
+import com.stackroute.keepnote.model.Note;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Controller
 public class NoteController {
 	/*
 	 * From the problem statement, we can understand that the application requires
@@ -18,17 +34,35 @@ public class NoteController {
 	 * 
 	 */
 
+
+
+
 	/*
 	 * Autowiring should be implemented for the NoteDAO.
 	 * Create a Note object.
 	 * 
 	 */
+	@Autowired
+	NoteDAO noteDAO;
+
+	public NoteController(NoteDAO noteDAO){
+		this.noteDAO=noteDAO;
+
+	}
+
 
 	/*
 	 * Define a handler method to read the existing notes from the database and add
 	 * it to the ModelMap which is an implementation of Map, used when building
 	 * model data for use with views. it should map to the default URL i.e. "/index"
 	 */
+	@RequestMapping("/")
+	public String listEmployees(ModelMap model) {
+		List<Note> notes = noteDAO.getAllNotes();
+		model.addAttribute("notes", notes);
+		return "index";
+	}
+
 
 	/*
 	 * Define a handler method which will read the NoteTitle, NoteContent,
@@ -41,15 +75,56 @@ public class NoteController {
 	 * "/add".
 	 */
 
+
+	@RequestMapping(value = { "/add" }, method = RequestMethod.GET)
+	public String newEmployee(ModelMap modelMap) {
+		return "redirect:/";
+	}
+
+	@RequestMapping(value = { "/add" }, method = RequestMethod.POST)
+	public String saveEmployee(@ModelAttribute("note") Note note) {
+			note.setCreatedAt(LocalDateTime.now());
+		  if(noteDAO.saveNote(note)){
+			  return "redirect:/";
+		  }else{
+		  	return "index";
+		  }
+
+	}
+
 	/*
 	 * Define a handler method which will read the NoteId from request parameters
 	 * and remove an existing note by calling the deleteNote() method of the
 	 * NoteRepository class.This handler method should map to the URL "/delete".
 	 */
+	@RequestMapping(value = { "/delete" }, method = RequestMethod.GET)
+	public String deleteEmployee(@RequestParam("noteId")int id) {
+		noteDAO.deleteNote(id);
+		return "redirect:/";
+
+
+	}
+
+
 
 	/*
 	 * Define a handler method which will update the existing note. This handler
 	 * method should map to the URL "/update".
 	 */
+	@RequestMapping(value = { "/update" }, method = RequestMethod.GET)
+	public String updateEmployeeForm(ModelMap modelMap ,@RequestParam("noteId") int noteId) {
+		modelMap.addAttribute("noteId",noteId);
+		return "update";
+		//return "index";
 
+	}
+	@RequestMapping(value = { "/update" }, method = RequestMethod.POST)
+	public String updateEmployee(@ModelAttribute("note")Note note) {
+		if(noteDAO.UpdateNote(note)){
+			return "redirect:/";
+		}else{
+			return "index";
+		}
+
+	}
 }
