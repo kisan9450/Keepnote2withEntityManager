@@ -41,7 +41,7 @@ public class ApplicationContextConfig {
 		dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
 		dataSource.setUrl("jdbc:mysql://localhost:3306/notedb");
 		dataSource.setUsername("root");
-		dataSource.setPassword("9304083096s");
+		dataSource.setPassword("99679450Kk");
 		return dataSource;
 	}
 
